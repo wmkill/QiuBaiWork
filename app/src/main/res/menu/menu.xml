@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/qiushi" android:title="糗事"  android:icon="@mipmap/ic_qiushi_select"/>
+        <item android:id="@+id/friendGroup" android:title="糗友圈" android:icon="@mipmap/ic_qiuyoucircle_select"/>
+        <item android:id="@+id/explore" android:title="发现" android:icon="@mipmap/ic_nearby_select"/>
+        <item android:id="@+id/zhitiao" android:title="小纸条" android:icon="@mipmap/ic_message_select"/>
+    </group>
+    <item android:title="个人中心">
+        <menu>
+            <item android:id="@+id/login" android:title="登录/注册"/>
+            <item android:id="@+id/manager" android:title="管理我的糗事"/>
+            <item android:id="@+id/friends" android:title="我的糗友/群"/>
+            <item android:id="@+id/night" android:title="夜间模式"/>
+            <item android:id="@+id/staticMode" android:title="静音模式"/>
+            <item android:id="@+id/setting" android:title="设置"/>
+            <item android:id="@+id/out" android:title="退出"/>
+        </menu>
+    </item>
+</menu>
