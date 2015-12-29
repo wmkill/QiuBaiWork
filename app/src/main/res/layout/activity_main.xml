@@ -10,10 +10,12 @@
     <android.support.design.widget.NavigationView
         android:id="@+id/menu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="left|start"
-        app:elevation="5dp"
-        app:menu="@menu/menu"/>
+        app:elevation="3dp"
+        app:headerLayout="@layout/header_layout"
+        app:menu="@menu/menu"
+        />
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,5 +23,5 @@
         android:background="#fff"
         android:elevation="5dp">
     </FrameLayout>
-<!--为什么加上android:elevation="5dp"这一句就会是滑动效果，去掉就没有滑动过程呢-->
+<!--为什么加上android:elevation="5dp"这一句就会是滑动效果，去掉就没有滑动过程而是闪现呢-->
 </com.dever.qiubaiwork.widgets.CustomSildingPanalLayout>

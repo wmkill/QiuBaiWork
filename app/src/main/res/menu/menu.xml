@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
-        <item android:id="@+id/qiushi" android:title="糗事"  android:icon="@mipmap/ic_qiushi_select"/>
+        <item android:id="@+id/qiushi" android:title="糗事"  android:icon="@mipmap/ic_qiushi_select" android:checked="true"/>
         <item android:id="@+id/friendGroup" android:title="糗友圈" android:icon="@mipmap/ic_qiuyoucircle_select"/>
         <item android:id="@+id/explore" android:title="发现" android:icon="@mipmap/ic_nearby_select"/>
         <item android:id="@+id/zhitiao" android:title="小纸条" android:icon="@mipmap/ic_message_select"/>

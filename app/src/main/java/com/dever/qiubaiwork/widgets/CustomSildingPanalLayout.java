@@ -7,9 +7,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
-/**
- * Created by admin on 2015/12/28.
- */
 public class CustomSildingPanalLayout extends SlidingPaneLayout {
     private float mInitialMotionX;
     private float mInitialMotionY;
@@ -57,7 +54,6 @@ public class CustomSildingPanalLayout extends SlidingPaneLayout {
                 }
             }
         }
-
         return super.onInterceptTouchEvent(ev);
     }
 }

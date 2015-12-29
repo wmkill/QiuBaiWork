@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SlidingPaneLayout drawerLayout;
     private FrameLayout frameLayout;
     private NavigationView menu;
-    private ActionBarDrawerToggle toggle;
     private Fragment qiushiFragment,friendGroupFragment,exploreFragment,zhitiaoFragment;
 
     @Override
