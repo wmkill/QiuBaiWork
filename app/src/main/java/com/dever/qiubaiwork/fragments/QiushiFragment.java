@@ -47,7 +47,7 @@ public class QiushiFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         viewPager = (ViewPager) view.findViewById(R.id.viewPager);
         tabLayout = (TabLayout) view.findViewById(R.id.tabLayout);
-        String[] str = {"专享","视频","纯文","纯图","精华","最新"};
+        String[] str = {"专享","视频","纯文","纯图","最新"};
         List<Fragment> fragments = new ArrayList<>();
         for(String s:str) {
             ArticleFragment f = new ArticleFragment();

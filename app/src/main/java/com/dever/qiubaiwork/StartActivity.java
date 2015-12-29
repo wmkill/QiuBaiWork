@@ -17,7 +17,7 @@ public class StartActivity extends Activity {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(3000);
+                    Thread.sleep(2000);
                     startActivity(new Intent(getApplication(),MainActivity.class));
                     finish();
                 } catch (InterruptedException e) {
