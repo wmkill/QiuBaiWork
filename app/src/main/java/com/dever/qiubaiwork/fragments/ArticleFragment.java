@@ -22,6 +22,7 @@ import com.dever.qiubaiwork.QsService;
 import com.dever.qiubaiwork.R;
 import com.dever.qiubaiwork.adapters.ListArticleAdapter;
 import com.dever.qiubaiwork.entity.Item;
+import com.dever.qiubaiwork.entity.VideoBean;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -32,10 +33,10 @@ import retrofit.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ArticleFragment extends Fragment implements Callback<Item>, AdapterView.OnItemClickListener {
+public class ArticleFragment extends Fragment implements Callback<VideoBean>, AdapterView.OnItemClickListener, View.OnClickListener {
 
     private ListView lv;
-    private Call<Item> call;
+    private Call<VideoBean> call;
     private ListArticleAdapter adapter;
 
     public ArticleFragment() {
@@ -63,6 +64,7 @@ public class ArticleFragment extends Fragment implements Callback<Item>, Adapter
 
         adapter = new ListArticleAdapter(getContext());
         lv.setAdapter(adapter);
+        adapter.setOnClickListener(this);
         Retrofit build = new Retrofit.Builder().baseUrl("http://m2.qiushibaike.com").addConverterFactory(GsonConverterFactory.create()).build();
         QsService service = build.create(QsService.class);
 
@@ -89,11 +91,11 @@ public class ArticleFragment extends Fragment implements Callback<Item>, Adapter
         call = service.getList(type, 1);
         call.enqueue(this);
 
-        lv.setOnItemClickListener(this);
+        //lv.setOnItemClickListener(this);
     }
 
     @Override
-    public void onResponse(Response<Item> response, Retrofit retrofit) {
+    public void onResponse(Response<VideoBean> response, Retrofit retrofit) {
         adapter.addAll(response.body().getItems());
     }
 
@@ -106,12 +108,27 @@ public class ArticleFragment extends Fragment implements Callback<Item>, Adapter
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Item.ItemsEntity item = (Item.ItemsEntity) adapter.getItem(position);
+        VideoBean.ItemsEntity item = (VideoBean.ItemsEntity) adapter.getItem(position);
         Intent intent = new Intent(getActivity(), InfoActivity.class);
         Bundle bundle = new Bundle();
         bundle.putInt("id",item.getId());
         intent.putExtras(bundle);
         startActivity(intent);
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        Object tag = v.getTag();
+        int position =-1;
+        if(tag!=null&&tag instanceof Integer){
+            position = (int)tag;
+        }
+        VideoBean.ItemsEntity item = (VideoBean.ItemsEntity) adapter.getItem(position);
+        Intent intent = new Intent(getActivity(), InfoActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt("id",item.getId());
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 }
