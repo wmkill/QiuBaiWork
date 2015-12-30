@@ -2,6 +2,7 @@ package com.dever.qiubaiwork.fragments;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -9,12 +10,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dever.qiubaiwork.InfoActivity;
 import com.dever.qiubaiwork.QsService;
 import com.dever.qiubaiwork.R;
 import com.dever.qiubaiwork.adapters.ListArticleAdapter;
@@ -86,7 +89,7 @@ public class ArticleFragment extends Fragment implements Callback<Item>, Adapter
         call = service.getList(type, 1);
         call.enqueue(this);
 
-        adapter.setOnItemClickListener(this);
+        lv.setOnItemClickListener(this);
     }
 
     @Override
@@ -100,8 +103,15 @@ public class ArticleFragment extends Fragment implements Callback<Item>, Adapter
         Toast.makeText(getContext(),"网络问题",Toast.LENGTH_SHORT).show();
     }
 
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Toast.makeText(getContext(), ""+view, Toast.LENGTH_SHORT).show();
+        Item.ItemsEntity item = (Item.ItemsEntity) adapter.getItem(position);
+        Intent intent = new Intent(getActivity(), InfoActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt("id",item.getId());
+        intent.putExtras(bundle);
+        startActivity(intent);
+
     }
 }
