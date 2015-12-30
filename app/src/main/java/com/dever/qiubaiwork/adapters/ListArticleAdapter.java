@@ -34,15 +34,9 @@ public class ListArticleAdapter extends BaseAdapter {
     private int netType;
     private List<Item.ItemsEntity> list;
 
-    private AdapterView.OnItemClickListener onItemClickListener;
-
-    public void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener){
-        this.onItemClickListener = onItemClickListener;
-    }
     public ListArticleAdapter(Context context){
         this.context = context;
         list = new ArrayList<>();
-
     }
 
     @Override
@@ -52,7 +46,7 @@ public class ListArticleAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return list.get(position);
     }
 
     @Override
@@ -94,8 +88,10 @@ public class ListArticleAdapter extends BaseAdapter {
         }
 
         holder.happy.setText("好笑 "+item.getVotes().getUp());
-        holder.talk.setText("评论 "+item.getComments_count());
-        holder.share.setText("分享 "+item.getShare_count());
+        holder.talk.setText("评论 " + item.getComments_count());
+        holder.share.setText("分享 " + item.getShare_count());
+
+
 
         return convertView;
     }
@@ -121,7 +117,7 @@ public class ListArticleAdapter extends BaseAdapter {
         String url = "http://pic.qiushibaike.com/system/avtnew/%s/%s/thumb/%s";
         return String.format(url,id/10000,id,icon);
     }
-    public static class ViewHolder{
+    public class ViewHolder{
         private TextView user_name,content,happy,talk,share;
         private ImageView user_icons,image;
 
@@ -133,7 +129,6 @@ public class ListArticleAdapter extends BaseAdapter {
             happy = (TextView) view.findViewById(R.id.happy);
             talk = (TextView) view.findViewById(R.id.talk);
             share = (TextView) view.findViewById(R.id.share);
-
         }
     }
     public void addAll(Collection<? extends Item.ItemsEntity> collection){
