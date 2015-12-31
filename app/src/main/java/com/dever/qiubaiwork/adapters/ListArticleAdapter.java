@@ -169,4 +169,9 @@ public class ListArticleAdapter extends BaseAdapter {
         list.addAll(collection);
         notifyDataSetChanged();
     }
+
+    public void clear(){
+        list.clear();
+        notifyDataSetChanged();
+    }
 }

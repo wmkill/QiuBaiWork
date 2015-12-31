@@ -3,10 +3,12 @@ package com.dever.qiubaiwork.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,11 +35,15 @@ import retrofit.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ArticleFragment extends Fragment implements Callback<VideoBean>, AdapterView.OnItemClickListener, View.OnClickListener {
+public class ArticleFragment extends Fragment implements Callback<VideoBean>, AdapterView.OnItemClickListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private ListView lv;
     private Call<VideoBean> call;
     private ListArticleAdapter adapter;
+    private SwipeRefreshLayout swipe;
+    private QsService service;
+    private String type = "suggest";
+    private int page =1;
 
     public ArticleFragment() {
         // Required empty public constructor
@@ -60,17 +66,22 @@ public class ArticleFragment extends Fragment implements Callback<VideoBean>, Ad
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
+        swipe = (SwipeRefreshLayout) view.findViewById(R.id.article_swipe);
+        swipe.setSize(SwipeRefreshLayout.LARGE);
+        swipe.setColorSchemeColors(Color.RED, Color.GREEN, Color.BLUE);
+        swipe.setOnRefreshListener(this);
+
         lv = (ListView) view.findViewById(R.id.lv);
 
         adapter = new ListArticleAdapter(getContext());
         lv.setAdapter(adapter);
         adapter.setOnClickListener(this);
         Retrofit build = new Retrofit.Builder().baseUrl("http://m2.qiushibaike.com").addConverterFactory(GsonConverterFactory.create()).build();
-        QsService service = build.create(QsService.class);
+        service = build.create(QsService.class);
 
         Bundle bundle = getArguments();
         String name = bundle.getString("name");
-        String type = "suggest";
+
         switch (name){
             case "专享":
                 type = "suggest";
@@ -88,7 +99,7 @@ public class ArticleFragment extends Fragment implements Callback<VideoBean>, Ad
                 type = "latest";
                 break;
         }
-        call = service.getList(type, 1);
+        call = service.getList(type, page);
         call.enqueue(this);
 
         //lv.setOnItemClickListener(this);
@@ -96,13 +107,18 @@ public class ArticleFragment extends Fragment implements Callback<VideoBean>, Ad
 
     @Override
     public void onResponse(Response<VideoBean> response, Retrofit retrofit) {
+        if(page==1){
+            adapter.clear();
+        }
         adapter.addAll(response.body().getItems());
+        swipe.setRefreshing(false);
     }
 
     @Override
     public void onFailure(Throwable t) {
         t.printStackTrace();
         Toast.makeText(getContext(),"网络问题",Toast.LENGTH_SHORT).show();
+        swipe.setRefreshing(false);
     }
 
 
@@ -130,5 +146,15 @@ public class ArticleFragment extends Fragment implements Callback<VideoBean>, Ad
         bundle.putInt("id",item.getId());
         intent.putExtras(bundle);
         startActivity(intent);
+    }
+
+    /**
+     * 下拉监听
+     */
+    @Override
+    public void onRefresh() {
+        page = 1;
+        service.getList(type, page).enqueue(this);
+        adapter.clear();
     }
 }
