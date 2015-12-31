@@ -21,5 +21,5 @@ public interface QsService {
     Call<ItemInfo> getInfo(@Path("id")String id);
 
     @GET("article/{id}/comments")
-    Call<TalkList> getTalk(@Path("id")String id,@Query("page") int page );
+    Call<TalkList> getTalk(@Path("id")String id,@Query("count") int count );
 }

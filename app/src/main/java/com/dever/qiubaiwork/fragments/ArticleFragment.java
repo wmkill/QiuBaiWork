@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +26,13 @@ import com.dever.qiubaiwork.R;
 import com.dever.qiubaiwork.adapters.ListArticleAdapter;
 import com.dever.qiubaiwork.entity.Item;
 import com.dever.qiubaiwork.entity.VideoBean;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
+import in.srain.cube.views.ptr.PtrDefaultHandler;
+import in.srain.cube.views.ptr.PtrFrameLayout;
+import in.srain.cube.views.ptr.PtrHandler;
+import in.srain.cube.views.ptr.header.StoreHouseHeader;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -35,12 +42,11 @@ import retrofit.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ArticleFragment extends Fragment implements Callback<VideoBean>, AdapterView.OnItemClickListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class ArticleFragment extends Fragment implements Callback<VideoBean>, AdapterView.OnItemClickListener, View.OnClickListener,PullToRefreshListView.OnRefreshListener2<ListView>{
 
-    private ListView lv;
+    private PullToRefreshListView lv;
     private Call<VideoBean> call;
     private ListArticleAdapter adapter;
-    private SwipeRefreshLayout swipe;
     private QsService service;
     private String type = "suggest";
     private int page =1;
@@ -62,16 +68,10 @@ public class ArticleFragment extends Fragment implements Callback<VideoBean>, Ad
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_article, container, false);
     }
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        swipe = (SwipeRefreshLayout) view.findViewById(R.id.article_swipe);
-        swipe.setSize(SwipeRefreshLayout.LARGE);
-        swipe.setColorSchemeColors(Color.RED, Color.GREEN, Color.BLUE);
-        swipe.setOnRefreshListener(this);
-
-        lv = (ListView) view.findViewById(R.id.lv);
+        lv = (PullToRefreshListView) view.findViewById(R.id.lv);
 
         adapter = new ListArticleAdapter(getContext());
         lv.setAdapter(adapter);
@@ -101,7 +101,8 @@ public class ArticleFragment extends Fragment implements Callback<VideoBean>, Ad
         }
         call = service.getList(type, page);
         call.enqueue(this);
-
+        lv.setMode(PullToRefreshBase.Mode.BOTH);
+        lv.setOnRefreshListener(this);
         //lv.setOnItemClickListener(this);
     }
 
@@ -111,14 +112,15 @@ public class ArticleFragment extends Fragment implements Callback<VideoBean>, Ad
             adapter.clear();
         }
         adapter.addAll(response.body().getItems());
-        swipe.setRefreshing(false);
+        lv.onRefreshComplete();
+
     }
 
     @Override
     public void onFailure(Throwable t) {
         t.printStackTrace();
         Toast.makeText(getContext(),"网络问题",Toast.LENGTH_SHORT).show();
-        swipe.setRefreshing(false);
+        lv.onRefreshComplete();
     }
 
 
@@ -148,13 +150,13 @@ public class ArticleFragment extends Fragment implements Callback<VideoBean>, Ad
         startActivity(intent);
     }
 
-    /**
-     * 下拉监听
-     */
     @Override
-    public void onRefresh() {
-        page = 1;
-        service.getList(type, page).enqueue(this);
-        adapter.clear();
+    public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+        service.getList(type,page).enqueue(this);
+    }
+
+    @Override
+    public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+        service.getList(type,(page++)).enqueue(this);
     }
 }

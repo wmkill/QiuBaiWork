@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -18,6 +20,8 @@ import com.dever.qiubaiwork.adapters.TalkListAdapter;
 import com.dever.qiubaiwork.entity.ItemInfo;
 import com.dever.qiubaiwork.entity.TalkList;
 import com.dever.qiubaiwork.fragments.ArticleFragment;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.squareup.picasso.Picasso;
 
 import java.util.regex.Matcher;
@@ -31,21 +35,30 @@ import retrofit.Retrofit;
 
 public class InfoActivity extends AppCompatActivity {
     private TextView info_name,info_content,info_happy,info_talk,info_share;
-    private ImageView info_image,info_icon;
+    private SimpleDraweeView info_image,info_icon;
     private ListView lv;
     private TalkListAdapter adapter;
+    private int count;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
-        info_name = (TextView) findViewById(R.id.info_name);
-        info_icon = (ImageView) findViewById(R.id.info_icon);
-        info_content = (TextView) findViewById(R.id.info_content);
-        info_image = (ImageView) findViewById(R.id.info_image);
-        info_happy = (TextView) findViewById(R.id.info_happy);
-        info_talk = (TextView) findViewById(R.id.info_talk);
-        info_share = (TextView) findViewById(R.id.info_share);
+
         lv = (ListView) findViewById(R.id.list_talk);
+        //addHeaderView
+        View header_view = LayoutInflater.from(this).inflate(R.layout.info_header, lv, false);
+        lv.addHeaderView(header_view);
+        info_name = (TextView) header_view.findViewById(R.id.info_name);
+        info_icon = (SimpleDraweeView) header_view.findViewById(R.id.info_icon);
+        info_content = (TextView) header_view.findViewById(R.id.info_content);
+        info_image = (SimpleDraweeView) header_view.findViewById(R.id.info_image);
+        info_happy = (TextView) header_view.findViewById(R.id.info_happy);
+        info_talk = (TextView) header_view.findViewById(R.id.info_talk);
+        info_share = (TextView) header_view.findViewById(R.id.info_share);
+
+
+
+
         adapter = new TalkListAdapter(this);
         lv.setAdapter(adapter);
         Intent intent = getIntent();
@@ -54,14 +67,14 @@ public class InfoActivity extends AppCompatActivity {
         /*Toast.makeText(this,""+id,Toast.LENGTH_SHORT).show();*/
         Retrofit build = new Retrofit.Builder().baseUrl("http://m2.qiushibaike.com").addConverterFactory(GsonConverterFactory.create()).build();
         QsService qsService = build.create(QsService.class);
-        Call<ItemInfo> info = qsService.getInfo(String.valueOf(id));
+        final Call<ItemInfo> info = qsService.getInfo(String.valueOf(id));
         info.enqueue(new Callback<ItemInfo>() {
             @Override
             public void onResponse(Response<ItemInfo> response, Retrofit retrofit) {
                 ItemInfo.ArticleEntity article = response.body().getArticle();
                 if(article.getUser()!=null){
                     info_name.setText(article.getUser().getLogin());
-                    Picasso.with(getApplication()).load(ListArticleAdapter.getIconUrl(article.getUser().getIcon(), article.getUser().getId())).transform(new CircleTransform()).into(info_icon);
+                    info_icon.setImageURI(Uri.parse(ListArticleAdapter.getIconUrl(article.getUser().getIcon(), article.getUser().getId())));
                 }else{
                     info_name.setText("匿名用户");
                     Picasso.with(getApplication()).load(R.mipmap.qb_mask).transform(new CircleTransform()).into(info_icon);
@@ -75,6 +88,9 @@ public class InfoActivity extends AppCompatActivity {
                 if(article.getFormat().equals("video")){
                     if(article.getPic_url()!=null){
                         info_image.setVisibility(View.VISIBLE);
+                        //info_image.setImageURI(Uri.parse(article.getPic_url()));
+                        //info_image.setAspectRatio(1.33f);
+                        //Log.d("info_image",  info_image.getWidth()+","+info_image.getHeight());
                         Picasso.with(getApplication())
                                 .load(article.getPic_url())
                                         //.resize(parent.getWidth(),0)
@@ -87,6 +103,9 @@ public class InfoActivity extends AppCompatActivity {
                 }else if(article.getFormat().equals("image")){
                     if(article.getImage()!=null){
                         info_image.setVisibility(View.VISIBLE);
+                        //info_image.setImageURI(Uri.parse(getImageUrl((String) article.getImage())));
+                        //info_image.setAspectRatio(1.33f);
+                        //Log.d("info_image", info_image.getWidth() + "," + info_image.getHeight());
                         Picasso.with(getApplication())
                                 .load(getImageUrl((String) article.getImage()))
                                         //.resize(parent.getWidth(),200)
@@ -94,12 +113,12 @@ public class InfoActivity extends AppCompatActivity {
                                 .error(R.mipmap.fail_img)
                                 .into(info_image);
                     }else{
-
+                        info_image.setVisibility(View.GONE);
                     }
                 }else{
                     info_image.setVisibility(View.GONE);
                 }
-
+                count = article.getComments_count();
                 info_happy.setText("好笑 "+article.getVotes().getUp());
                 info_talk.setText("评论 "+article.getComments_count());
                 info_share.setText("分享 " + article.getShare_count());
@@ -113,7 +132,7 @@ public class InfoActivity extends AppCompatActivity {
         });
 
 
-        Call<TalkList> talkListCall = qsService.getTalk(String.valueOf(id),1);
+        Call<TalkList> talkListCall = qsService.getTalk(String.valueOf(id),count);
         talkListCall.enqueue(new Callback<TalkList>() {
             @Override
             public void onResponse(Response<TalkList> response, Retrofit retrofit) {
