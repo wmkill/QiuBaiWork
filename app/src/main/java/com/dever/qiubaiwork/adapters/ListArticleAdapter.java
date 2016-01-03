@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,10 +73,11 @@ public class ListArticleAdapter extends BaseAdapter {
         ViewHolder holder = (ViewHolder) convertView.getTag();
 
         if(item.getUser()!=null){
-            Picasso.with(context).load(getIconUrl(item.getUser().getIcon(),item.getUser().getId())).transform(new CircleTransform()).into(holder.user_icons);
+            holder.user_icons.setImageURI(Uri.parse(getIconUrl(item.getUser().getIcon(),item.getUser().getId())));
+            //Picasso.with(context).load(getIconUrl(item.getUser().getIcon(),item.getUser().getId())).transform(new CircleTransform()).into(holder.user_icons);
             holder.user_name.setText(item.getUser().getLogin());
         }else{
-            Picasso.with(context).load(R.mipmap.qb_mask).transform(new CircleTransform()).into(holder.user_icons);
+            //Picasso.with(context).load(R.mipmap.qb_mask).transform(new CircleTransform()).into(holder.user_icons);
             holder.user_name.setText("匿名用户");
         }
 
@@ -117,6 +119,7 @@ public class ListArticleAdapter extends BaseAdapter {
         holder.share.setText("分享 " + item.getShare_count());
 
         holder.layout.setTag(position);
+        holder.operation_more.setTag(position);
 
         return convertView;
     }
@@ -149,7 +152,7 @@ public class ListArticleAdapter extends BaseAdapter {
     }
     public class ViewHolder{
         private TextView user_name,content,happy,talk,share;
-        private ImageView user_icons,image;
+        private ImageView user_icons,image,operation_more;
         private LinearLayout layout;
 
         public ViewHolder(View view){
@@ -161,8 +164,9 @@ public class ListArticleAdapter extends BaseAdapter {
             talk = (TextView) view.findViewById(R.id.talk);
             share = (TextView) view.findViewById(R.id.share);
             layout = (LinearLayout) view.findViewById(R.id.content_click);
-
+            operation_more = (ImageView) view.findViewById(R.id.operation_more);
             layout.setOnClickListener(onClickListener);
+            operation_more.setOnClickListener(onClickListener);
         }
     }
     public void addAll(Collection<? extends VideoBean.ItemsEntity> collection){

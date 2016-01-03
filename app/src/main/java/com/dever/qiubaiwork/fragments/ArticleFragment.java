@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -137,17 +138,36 @@ public class ArticleFragment extends Fragment implements Callback<VideoBean>, Ad
 
     @Override
     public void onClick(View v) {
+
         Object tag = v.getTag();
         int position =-1;
         if(tag!=null&&tag instanceof Integer){
             position = (int)tag;
         }
         VideoBean.ItemsEntity item = (VideoBean.ItemsEntity) adapter.getItem(position);
-        Intent intent = new Intent(getActivity(), InfoActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putInt("id",item.getId());
-        intent.putExtras(bundle);
-        startActivity(intent);
+        switch (v.getId()){
+            case R.id.content_click:
+
+                Intent intent = new Intent(getActivity(), InfoActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt("id",item.getId());
+                intent.putExtras(bundle);
+                startActivity(intent);
+                break;
+            case R.id.operation_more:
+
+                Intent in = new Intent();
+                in.setAction(Intent.ACTION_SEND);
+                if(item.getContent()!=null){
+                    in.putExtra(Intent.EXTRA_TEXT,item.getContent()+"[糗事百科分享]");
+                }else {
+                    in.putExtra(Intent.EXTRA_TEXT, "[糗事百科分享]");
+                }
+                in.setType("text/plain");
+                startActivity(in);
+
+                break;
+        }
     }
 
     @Override
@@ -157,6 +177,6 @@ public class ArticleFragment extends Fragment implements Callback<VideoBean>, Ad
 
     @Override
     public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-        service.getList(type,(page++)).enqueue(this);
+        service.getList(type,(++page)).enqueue(this);
     }
 }

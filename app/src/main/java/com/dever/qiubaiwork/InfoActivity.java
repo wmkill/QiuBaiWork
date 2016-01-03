@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,6 +23,7 @@ import com.dever.qiubaiwork.entity.ItemInfo;
 import com.dever.qiubaiwork.entity.TalkList;
 import com.dever.qiubaiwork.fragments.ArticleFragment;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.handmark.pulltorefresh.library.PullToRefreshExpandableListView;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.squareup.picasso.Picasso;
 
@@ -33,12 +36,16 @@ import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-public class InfoActivity extends AppCompatActivity {
+public class InfoActivity extends AppCompatActivity implements Callback<TalkList>, View.OnClickListener {
     private TextView info_name,info_content,info_happy,info_talk,info_share;
     private SimpleDraweeView info_image,info_icon;
     private ListView lv;
     private TalkListAdapter adapter;
-    private int count;
+    private int page;
+    private QsService qsService;
+    private int id,count;
+    private TextView foot_view;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +54,9 @@ public class InfoActivity extends AppCompatActivity {
         lv = (ListView) findViewById(R.id.list_talk);
         //addHeaderView
         View header_view = LayoutInflater.from(this).inflate(R.layout.info_header, lv, false);
+        View footer_view = LayoutInflater.from(this).inflate(R.layout.info_footer,lv,false);
         lv.addHeaderView(header_view);
+        lv.addFooterView(footer_view);
         info_name = (TextView) header_view.findViewById(R.id.info_name);
         info_icon = (SimpleDraweeView) header_view.findViewById(R.id.info_icon);
         info_content = (TextView) header_view.findViewById(R.id.info_content);
@@ -55,97 +64,78 @@ public class InfoActivity extends AppCompatActivity {
         info_happy = (TextView) header_view.findViewById(R.id.info_happy);
         info_talk = (TextView) header_view.findViewById(R.id.info_talk);
         info_share = (TextView) header_view.findViewById(R.id.info_share);
-
-
-
+        foot_view = (TextView) footer_view.findViewById(R.id.foot_view);
 
         adapter = new TalkListAdapter(this);
         lv.setAdapter(adapter);
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-        int id = bundle.getInt("id");
+        id = bundle.getInt("id");
         /*Toast.makeText(this,""+id,Toast.LENGTH_SHORT).show();*/
         Retrofit build = new Retrofit.Builder().baseUrl("http://m2.qiushibaike.com").addConverterFactory(GsonConverterFactory.create()).build();
-        QsService qsService = build.create(QsService.class);
+        qsService = build.create(QsService.class);
         final Call<ItemInfo> info = qsService.getInfo(String.valueOf(id));
         info.enqueue(new Callback<ItemInfo>() {
             @Override
             public void onResponse(Response<ItemInfo> response, Retrofit retrofit) {
                 ItemInfo.ArticleEntity article = response.body().getArticle();
-                if(article.getUser()!=null){
+                if (article.getUser() != null) {
                     info_name.setText(article.getUser().getLogin());
                     info_icon.setImageURI(Uri.parse(ListArticleAdapter.getIconUrl(article.getUser().getIcon(), article.getUser().getId())));
-                }else{
+                } else {
                     info_name.setText("匿名用户");
                     Picasso.with(getApplication()).load(R.mipmap.qb_mask).transform(new CircleTransform()).into(info_icon);
                 }
-                if(article.getContent()!=null){
+                if (article.getContent() != null) {
                     info_content.setText(article.getContent());
-                }else{
+                } else {
                     info_content.setVisibility(View.GONE);
                 }
 
-                if(article.getFormat().equals("video")){
-                    if(article.getPic_url()!=null){
+                if (article.getFormat().equals("video")) {
+                    if (article.getPic_url() != null) {
                         info_image.setVisibility(View.VISIBLE);
-                        //info_image.setImageURI(Uri.parse(article.getPic_url()));
-                        //info_image.setAspectRatio(1.33f);
-                        //Log.d("info_image",  info_image.getWidth()+","+info_image.getHeight());
                         Picasso.with(getApplication())
                                 .load(article.getPic_url())
                                         //.resize(parent.getWidth(),0)
                                 .placeholder(R.mipmap.fail_img)
                                 .error(R.mipmap.fail_img)
                                 .into(info_image);
-                    }else{
+                    } else {
                         info_image.setVisibility(View.GONE);
                     }
-                }else if(article.getFormat().equals("image")){
-                    if(article.getImage()!=null){
+                } else if (article.getFormat().equals("image")) {
+                    if (article.getImage() != null) {
                         info_image.setVisibility(View.VISIBLE);
-                        //info_image.setImageURI(Uri.parse(getImageUrl((String) article.getImage())));
-                        //info_image.setAspectRatio(1.33f);
-                        //Log.d("info_image", info_image.getWidth() + "," + info_image.getHeight());
                         Picasso.with(getApplication())
                                 .load(getImageUrl((String) article.getImage()))
                                         //.resize(parent.getWidth(),200)
                                 .placeholder(R.mipmap.fail_img)
                                 .error(R.mipmap.fail_img)
                                 .into(info_image);
-                    }else{
+                    } else {
                         info_image.setVisibility(View.GONE);
                     }
-                }else{
+                } else {
                     info_image.setVisibility(View.GONE);
                 }
                 count = article.getComments_count();
-                info_happy.setText("好笑 "+article.getVotes().getUp());
-                info_talk.setText("评论 "+article.getComments_count());
+                info_happy.setText("好笑 " + article.getVotes().getUp());
+                info_talk.setText("评论 " + article.getComments_count());
                 info_share.setText("分享 " + article.getShare_count());
             }
 
             @Override
             public void onFailure(Throwable t) {
                 t.printStackTrace();
-                Toast.makeText(getApplication(),"网络问题",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplication(), "网络问题", Toast.LENGTH_SHORT).show();
             }
         });
 
-
-        Call<TalkList> talkListCall = qsService.getTalk(String.valueOf(id),count);
-        talkListCall.enqueue(new Callback<TalkList>() {
-            @Override
-            public void onResponse(Response<TalkList> response, Retrofit retrofit) {
-                adapter.addAll(response.body().getItems());
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                t.printStackTrace();
-                Toast.makeText(getApplication(),"网络问题",Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        foot_view.setOnClickListener(this);
+        page=1;
+        Call<TalkList> talkListCall = qsService.getTalk(String.valueOf(id), page);
+        talkListCall.enqueue(this);
     }
 
     private String getImgSize(){
@@ -168,5 +158,21 @@ public class InfoActivity extends AppCompatActivity {
         matcher.find();
 
         return String.format(url, matcher.group(1), matcher.group(), getImgSize(), image);
+    }
+
+    @Override
+    public void onResponse(Response<TalkList> response, Retrofit retrofit) {
+        adapter.addAll(response.body().getItems());
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        t.printStackTrace();
+        Toast.makeText(getApplication(),"网络问题",Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClick(View v) {
+        qsService.getTalk(String.valueOf(id), ++page).enqueue(this);
     }
 }
