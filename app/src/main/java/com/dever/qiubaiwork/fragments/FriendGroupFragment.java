@@ -27,4 +27,7 @@ public class FriendGroupFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_friend_group, container, false);
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+    }
 }

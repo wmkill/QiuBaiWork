@@ -7,18 +7,21 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.dever.qiubaiwork.CircleTransform;
 import com.dever.qiubaiwork.R;
 import com.dever.qiubaiwork.entity.Item;
 import com.dever.qiubaiwork.entity.VideoBean;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -88,29 +91,43 @@ public class ListArticleAdapter extends BaseAdapter {
         if(item.getFormat().equals("video")){
             if(item.getPic_url()!=null){
                 holder.image.setVisibility(View.VISIBLE);
-                Picasso.with(context)
+                holder.image.setImageURI(Uri.parse(item.getPic_url()));
+                holder.play.setVisibility(View.VISIBLE);
+                //holder.progress.setVisibility(View.VISIBLE);
+                /*Picasso.with(context)
                         .load(item.getPic_url())
                         //.resize(parent.getWidth(),0)
                         .placeholder(R.mipmap.fail_img)
                         .error(R.mipmap.fail_img)
-                        .into(holder.image);
+                        .into(holder.image);*/
             }else{
                 holder.image.setVisibility(View.GONE);
+                holder.play.setVisibility(View.GONE);
+                holder.progress.setVisibility(View.GONE);
+                holder.surface.setVisibility(View.GONE);
             }
         }else if(item.getFormat().equals("image")){
             if(item.getImage()!=null){
                 holder.image.setVisibility(View.VISIBLE);
-                Picasso.with(context)
+                String imageUrl = getImageUrl((String) item.getImage());
+                holder.image.setImageURI(Uri.parse(imageUrl));
+                /*Picasso.with(context)
                         .load(getImageUrl((String) item.getImage()))
                                 //.resize(parent.getWidth(),200)
                         .placeholder(R.mipmap.fail_img)
                         .error(R.mipmap.fail_img)
-                        .into(holder.image);
+                        .into(holder.image);*/
             }else{
                 holder.image.setVisibility(View.GONE);
+                holder.play.setVisibility(View.GONE);
+                holder.progress.setVisibility(View.GONE);
+                holder.surface.setVisibility(View.GONE);
             }
         }else{
             holder.image.setVisibility(View.GONE);
+            holder.play.setVisibility(View.GONE);
+            holder.progress.setVisibility(View.GONE);
+            holder.surface.setVisibility(View.GONE);
         }
 
 
@@ -152,21 +169,28 @@ public class ListArticleAdapter extends BaseAdapter {
     }
     public class ViewHolder{
         private TextView user_name,content,happy,talk,share;
-        private ImageView user_icons,image,operation_more;
+        private ImageView user_icons,operation_more,play;
+        private SurfaceView surface;
+        private ProgressBar progress;
+        private SimpleDraweeView image;
         private LinearLayout layout;
 
         public ViewHolder(View view){
             user_name = (TextView) view.findViewById(R.id.user_name);
             user_icons = (ImageView) view.findViewById(R.id.user_icons);
             content = (TextView) view.findViewById(R.id.content);
-            image = (ImageView) view.findViewById(R.id.image);
+            image = (SimpleDraweeView) view.findViewById(R.id.image);
             happy = (TextView) view.findViewById(R.id.happy);
             talk = (TextView) view.findViewById(R.id.talk);
             share = (TextView) view.findViewById(R.id.share);
             layout = (LinearLayout) view.findViewById(R.id.content_click);
             operation_more = (ImageView) view.findViewById(R.id.operation_more);
+            play = (ImageView) view.findViewById(R.id.play);
+            surface = (SurfaceView) view.findViewById(R.id.surface);
+            progress = (ProgressBar) view.findViewById(R.id.progress);
             layout.setOnClickListener(onClickListener);
             operation_more.setOnClickListener(onClickListener);
+            image.setAspectRatio(1);
         }
     }
     public void addAll(Collection<? extends VideoBean.ItemsEntity> collection){

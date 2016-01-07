@@ -14,8 +14,10 @@ import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.dever.qiubaiwork.adapters.ListArticleAdapter;
 import com.dever.qiubaiwork.adapters.TalkListAdapter;
@@ -45,6 +47,7 @@ public class InfoActivity extends AppCompatActivity implements Callback<TalkList
     private QsService qsService;
     private int id,count;
     private TextView foot_view;
+    private VideoView info_video;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +68,7 @@ public class InfoActivity extends AppCompatActivity implements Callback<TalkList
         info_talk = (TextView) header_view.findViewById(R.id.info_talk);
         info_share = (TextView) header_view.findViewById(R.id.info_share);
         foot_view = (TextView) footer_view.findViewById(R.id.foot_view);
+        info_video = (VideoView) header_view.findViewById(R.id.info_video);
 
         adapter = new TalkListAdapter(this);
         lv.setAdapter(adapter);
@@ -93,7 +97,15 @@ public class InfoActivity extends AppCompatActivity implements Callback<TalkList
                 }
 
                 if (article.getFormat().equals("video")) {
-                    if (article.getPic_url() != null) {
+                    if(article.getHigh_url()!=null){
+                        //info_video.setVideoPath("http://qiubai-video.qiushibaike.com/DS6YRBPMWVADL7PK.mp4");
+                        info_video.setVideoURI(Uri.parse("http://qiubai-video.qiushibaike.com/DS6YRBPMWVADL7PK.mp4"));
+                        info_video.setMediaController(new MediaController(getApplication()));
+                        info_video.requestFocus();
+                    }else{
+                        info_video.setVisibility(View.GONE);
+                    }
+                    /*if (article.getPic_url() != null) {
                         info_image.setVisibility(View.VISIBLE);
                         Picasso.with(getApplication())
                                 .load(article.getPic_url())
@@ -103,8 +115,9 @@ public class InfoActivity extends AppCompatActivity implements Callback<TalkList
                                 .into(info_image);
                     } else {
                         info_image.setVisibility(View.GONE);
-                    }
-                } else if (article.getFormat().equals("image")) {
+                    }*/
+                }
+                if (article.getFormat().equals("image")) {
                     if (article.getImage() != null) {
                         info_image.setVisibility(View.VISIBLE);
                         Picasso.with(getApplication())

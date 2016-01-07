@@ -36,11 +36,35 @@
             android:lineSpacingExtra="4dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-        <ImageView
-            android:id="@+id/image"
-            android:layout_marginTop="5dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <SurfaceView
+                android:id="@+id/surface"
+                android:visibility="invisible"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+            <ProgressBar
+                android:id="@+id/progress"
+                android:visibility="invisible"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:id="@+id/play"
+                android:visibility="invisible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_media_play"/>
+        </FrameLayout>
+
     </LinearLayout>
 
     <RelativeLayout

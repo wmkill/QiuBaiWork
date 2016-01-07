@@ -1,14 +1,20 @@
 package com.dever.qiubaiwork.fragments;
 
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.dever.qiubaiwork.MainActivity;
 import com.dever.qiubaiwork.R;
 import com.dever.qiubaiwork.fragmentadapters.CommonFragmentPagerAdapter;
 
@@ -47,6 +53,8 @@ public class QiushiFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         viewPager = (ViewPager) view.findViewById(R.id.viewPager);
         tabLayout = (TabLayout) view.findViewById(R.id.tabLayout);
+
+
         String[] str = {"专享","视频","纯文","纯图","最新"};
         List<Fragment> fragments = new ArrayList<>();
         for(String s:str) {

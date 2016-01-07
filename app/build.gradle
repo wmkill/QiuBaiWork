@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
-
     defaultConfig {
         applicationId "com.dever.qiubaiwork"
         minSdkVersion 14
@@ -13,8 +12,16 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            //打开混淆
+            minifyEnabled true
+            //混淆的配置文件，如果类名 方法名以字符串的形式出现  是不可以被混淆的
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+        baidu {
+        }
+        qq {
         }
     }
 }
